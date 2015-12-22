@@ -60,6 +60,7 @@ const SUNDIALS_BAND = 2
 # Skipping MacroDefinition: BAND_ELEM ( A , i , j ) ( ( A -> cols ) [ j ] [ ( i ) - ( j ) + ( A -> s_mu ) ] )
 
 typealias realtype Cdouble
+typealias Realtype Cdouble
 
 type _DlsMat
     _type::Cint
