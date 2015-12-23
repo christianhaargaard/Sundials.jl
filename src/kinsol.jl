@@ -1,6 +1,9 @@
 # Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
+type KINSOL_struct; end # dummy type to give us a typed pointer
+typealias KINSOL_ptr Ptr{KINSOL_struct}
+
 function KINCreate()
     ccall((:KINCreate,libsundials_kinsol),Ptr{Void},())
 end

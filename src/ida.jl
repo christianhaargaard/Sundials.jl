@@ -1,6 +1,9 @@
 # Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/ida/ida.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
+type IDA_struct; end # dummy type to give us a typed pointer
+typealias IDA_ptr Ptr{IDA_struct}
+
 function IDACreate()
     ccall((:IDACreate,libsundials_ida),Ptr{Void},())
 end

@@ -1,6 +1,8 @@
 # Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/nvector/shlib.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
+type NVECTOR_struct; end # dummy type to give us a typed pointer
+typealias N_Vector Ptr{NVECTOR_struct}
 
 function N_VClone(w::N_Vector)
     ccall((:N_VClone,libsundials_nvecserial),N_Vector,(N_Vector,),w)
