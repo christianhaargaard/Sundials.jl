@@ -2,7 +2,7 @@
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 type CVODE_struct; end # dummy type to give us a typed pointer
-typealias CVODE_ptr Ptr{CVODE_struct}
+typealias CVODE_ptr Ptr{:CVODE_struct}
 
 function CVodeCreate(lmm::Int,iter::Int)
     ccall((:CVodeCreate,libsundials_cvode),CVODE_ptr,(Cint,Cint),lmm,iter)

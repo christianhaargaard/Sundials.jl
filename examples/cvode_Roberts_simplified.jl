@@ -10,3 +10,4 @@ function f(t, y, ydot)
 end
 t = [0.0; 4 * logspace(-1., 7., 9)]
 res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
+println(res)

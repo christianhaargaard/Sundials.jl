@@ -56,12 +56,14 @@ if isdefined(:libsundials_cvodes)
 else
     include("cvode.jl")
 end
+include("cvode.jl")
 shlib = libsundials_ida
 if isdefined(:libsundials_cvodes)
     include("idas.jl")
 else
     include("ida.jl")
 end
+include("ida.jl")
 shlib = libsundials_kinsol
 include("kinsol.jl")
 
@@ -81,19 +83,19 @@ type KinsolHandle   # memory handle for KINSOL
     end
 end
 Base.convert(::Type{KINSOL_ptr}, k::KinsolHandle) = k.kinsol[1]
-Base.convert(T::Type{Ptr{KINSOL_ptr}}, k::KinsolHandle) = convert(T, k.kinsol)
+Base.unsafe_convert(T::Type{Ptr{KINSOL_ptr}}, k::KinsolHandle) = unsafe_convert(T, k.kinsol)
 
 type CVodeHandle    # memory handle for CVode
     cvode::Vector{CVODE_ptr} # vector for passing to functions expecting Ptr{CVODE_ptr}
     function CVodeHandle(lmm::Int, iter::Int)
-        k = new([CVodeCreate(Int32(lmm), Int32(iter))])
-        finalizer(k, CVodeFree)
+        k = new([CVodeCreate(Int(lmm), Int(iter))])
+        finalizer(k, (x) -> CVodeFree(convert(CVODE_ptr,x)))
         return k
     end
 end
 
 Base.convert(::Type{CVODE_ptr}, k::CVodeHandle) = k.cvode[1]
-Base.convert(T::Type{Ptr{CVODE_ptr}}, k::CVodeHandle) = convert(T, k.cvode)
+Base.unsafe_convert(T::Type{Ptr{CVODE_ptr}}, k::CVodeHandle) = unsafe_convert(T, k.cvode)
 
 type IdaHandle # memory handle for IDA
     ida::Vector{IDA_ptr} # vector for passing to functions expecting Ptr{IDA_ptr}
@@ -105,17 +107,21 @@ type IdaHandle # memory handle for IDA
 end
 
 Base.convert(::Type{IDA_ptr}, k::IdaHandle) = k.ida[1]
-Base.convert(T::Type{Ptr{IDA_ptr}}, k::IdaHandle) = convert(T, k.ida)
+Base.unsafe_convert(T::Type{Ptr{IDA_ptr}}, k::IdaHandle) = Base.unsafe_convert(T, k.ida)
+# Base.convert(T::Type{Ptr{IDA_ptr}}, k::IdaHandle) = convert(T, k.ida)
 
 type NVector # memory handle for NVectors
     ptr::Vector{N_Vector} # vector for passing to functions expecting Ptr{N_Vector}
 
     function NVector(x::Vector{realtype})
         k = new([N_VMake_Serial(length(x), x)])
-        finalizer(k, N_VDestroy_Serial)
+        finalizer(k, (x) -> N_VDestroy_Serial(x.ptr[1]))
         return k
     end
 end
+Base.similar(A::NVector, T=eltype(A), dims=size(A)) = NVector(similar(A.v))
+Base.unsafe_convert(T::Type{Ptr{RealType}}, v::NVector) = unsafe_convert(T, v.v)
+
 # <<<<<<< HEAD
 # NVector{T<:Real}(x::Vector{T}) = NVector(copy!(similar(x, RealType), x))
 # 
@@ -124,7 +130,7 @@ end
 # 
 # Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
 # Base.length(nv::NVector) = length(nv.v)
-# Base.size(nv::NVector) = size(nv.v)
+Base.size(nv::NVector) = size(nv.v)
 # Base.size(nv::NVector, d) = size(nv.v, d)
 # Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
 # Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
@@ -194,23 +200,23 @@ IDASolve(mem, tout, tret, yret::Vector{RealType}, ypret::Vector{RealType}, itask
 
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
-    CVodeInit(mem, cfunction(f, Int32, (RealType, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+    CVodeInit(mem, cfunction(f, Int32, (RealType, N_Vector, N_Vector, Ptr{Void})), t0, NVector(y0).ptr[1])
 CVodeReInit(mem, t0, y0::Vector{RealType}) =
     CVodeReInit(mem, t0, nvector(y0))
 CVodeSVtolerances(mem, reltol, abstol::Vector{RealType}) =
-    CVodeSVtolerances(mem, reltol, nvector(abstol))
+    CVodeSVtolerances(mem, reltol, NVector(abstol).ptr[1])
 CVodeGetDky(mem, t, k, dky::Vector{RealType}) =
-    CVodeGetDky(mem, t, k, nvector(dky))
+    CVodeGetDky(mem, t, k, nvector(dky).ptr[1])
 CVodeGetErrWeights(mem, eweight::Vector{RealType}) =
-    CVodeGetErrWeights(mem, nvector(eweight))
+    CVodeGetErrWeights(mem, nvector(eweight).ptr[1])
 CVodeGetEstLocalErrors(mem, ele::Vector{RealType}) =
-    CVodeGetEstLocalErrors(mem, nvector(ele))
+    CVodeGetEstLocalErrors(mem, nvector(ele).ptr[1])
 CVodeRootInit(mem, nrtfn, g::Function) =
-    CVodeRootInit(mem, nrtfn, cfunction(g, Int32, (RealType, N_Vector, Ptr{RealType}, Ptr{Void})))
+    CVodeRootInit(mem, nrtfn, cfunction(g, Int, (RealType, N_Vector, Ptr{RealType}, Ptr{Void})))
 CVDlsSetDenseJacFn(mem, jac::Function) =
     CVDlsSetDenseJacFn(mem, cfunction(jac, Int32, (Int32, RealType, N_Vector, N_Vector, DlsMat, Ptr{Void}, N_Vector, N_Vector, N_Vector)))
 CVode(mem, tout, yout::Vector{RealType}, tret, itask) =
-    CVode(mem, tout, nvector(yout), tret, itask)
+    CVode(mem, tout, nvector(yout).ptr[1], tret, itask)
 
 if isdefined(:libsundials_cvodes)
 # CVODES
@@ -371,8 +377,8 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
-    mem = CVodeHandle(CV_BDF, CV_NEWTON)
-    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0))
+    mem = convert(CVODE_ptr,CVodeHandle(CV_BDF, CV_NEWTON))
+    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], NVector(y0).ptr[1])
     flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)

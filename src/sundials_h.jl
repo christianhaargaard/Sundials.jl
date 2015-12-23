@@ -59,7 +59,10 @@ const SUNDIALS_BAND = 2
 # Skipping MacroDefinition: BAND_COL_ELEM ( col_j , i , j ) ( col_j [ ( i ) - ( j ) ] )
 # Skipping MacroDefinition: BAND_ELEM ( A , i , j ) ( ( A -> cols ) [ j ] [ ( i ) - ( j ) + ( A -> s_mu ) ] )
 
-typealias realtype Cdouble
+typealias Realtype Float64
+typealias RealType Float64
+typealias realtype Float64
+# typealias realtype Cdouble
 
 type _DlsMat
     _type::Cint
@@ -104,15 +107,20 @@ type _generic_N_Vector_Ops
     nvminquotient::Ptr{Void}
 end
 
-typealias N_Vector_Ops Ptr{_generic_N_Vector_Ops}
+# typealias N_Vector_Ops Ptr{_generic_N_Vector_Ops}
+typealias N_Vector_Ops Ptr{:Void}
+# @ctypedef N_Vector Ptr{:Void}
+typealias N_Vector_S Ptr{:N_Vector}
 
 type _generic_N_Vector
     content::Ptr{Void}
     ops::Ptr{_generic_N_Vector_Ops}
 end
 
-typealias N_Vector Ptr{_generic_N_Vector}
-typealias N_Vector_S Ptr{N_Vector}
+type NVECTOR_struct; end # dummy type to give us a typed pointer
+typealias N_Vector Ptr{NVECTOR_struct}
+# typealias N_Vector Ptr{_generic_N_Vector}
+# typealias N_Vector_S Ptr{N_Vector}
 
 # begin enum ANONYMOUS_1
 typealias ANONYMOUS_1 UInt32
@@ -1111,7 +1119,8 @@ type _N_VectorContent_Serial
     data::Ptr{realtype}
 end
 
-typealias N_VectorContent_Serial Ptr{_N_VectorContent_Serial}
+# typealias N_VectorContent_Serial Ptr{_N_VectorContent_Serial}
+typealias N_VectorContent_Serial Ptr{:Void}
 
 const FCMIX_CVODE = 1
 const FCMIX_IDA = 2
@@ -2327,7 +2336,8 @@ type KINMemRec
     kin_infofp::Ptr{Void}
 end
 
-typealias KINMem Ptr{KINMemRec}
+# typealias KINMem Ptr{KINMemRec}
+typealias KINMem Ptr{:Void}
 
 # begin enum ANONYMOUS_43
 typealias ANONYMOUS_43 UInt32
@@ -2356,3 +2366,4 @@ typealias ANONYMOUS_46 UInt32
 const MODIFIED_GS = (UInt32)(1)
 const CLASSICAL_GS = (UInt32)(2)
 # end enum ANONYMOUS_46
+

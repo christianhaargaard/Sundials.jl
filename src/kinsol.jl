@@ -440,7 +440,7 @@ end
 # header: /usr/local/include/kinsol/kinsol_bbdpre.h
 @ctypedef KINCommFn Ptr{:Void}
 @ctypedef KINLocalFn Ptr{:Void}
-@c Int32 KINBBDPrecInit (:KINSOL_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:RealType,:KINLocalFn,:KINCommFn) shlib
+@c Int32 KINBBDPrecInit (:KINSOL_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:Realtype,:KINLocalFn,:KINCommFn) shlib
 @c Int32 KINBBDPrecGetWorkSpace (:KINSOL_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 KINBBDPrecGetNumGfnEvals (:KINSOL_ptr,Ptr{:Clong}) shlib
 
@@ -454,11 +454,11 @@ end
 @ctypedef KINErrHandlerFn Ptr{:Void}
 @ctypedef KINInfoHandlerFn Ptr{:Void}
 @c KINSOL_ptr KINCreate () shlib
-@c Int32 KINSetErrHandlerFn (:KINSOL_ptr,:KINErrHandlerFn,Ptr{:None}) shlib
+@c Int32 KINSetErrHandlerFn (:KINSOL_ptr,:KINErrHandlerFn,Ptr{:Void}) shlib
 @c Int32 KINSetErrFile (:KINSOL_ptr,Ptr{:FILE}) shlib
-@c Int32 KINSetInfoHandlerFn (:KINSOL_ptr,:KINInfoHandlerFn,Ptr{:None}) shlib
+@c Int32 KINSetInfoHandlerFn (:KINSOL_ptr,:KINInfoHandlerFn,Ptr{:Void}) shlib
 @c Int32 KINSetInfoFile (:KINSOL_ptr,Ptr{:FILE}) shlib
-@c Int32 KINSetUserData (:KINSOL_ptr,Ptr{:None}) shlib
+@c Int32 KINSetUserData (:KINSOL_ptr,Ptr{:Void}) shlib
 @c Int32 KINSetPrintLevel (:KINSOL_ptr,:Int32) shlib
 @c Int32 KINSetNumMaxIters (:KINSOL_ptr,:Clong) shlib
 @c Int32 KINSetNoInitSetup (:KINSOL_ptr,:Int32) shlib
@@ -488,14 +488,14 @@ end
 @c Int32 KINGetFuncNorm (:KINSOL_ptr,Ptr{:realtype}) shlib
 @c Int32 KINGetStepLength (:KINSOL_ptr,Ptr{:realtype}) shlib
 @c Ptr{:Uint8} KINGetReturnFlagName (:Clong,) shlib
-@c None KINFree (Ptr{:KINSOL_ptr},) shlib
+@c Void KINFree (Ptr{:KINSOL_ptr},) shlib
 
 # header: /usr/local/include/kinsol/kinsol_impl.h
-@ctypedef KINMem Ptr{:Void}
-@c None KINProcessError (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
-@c None KINErrHandler (:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:None}) shlib
-@c None KINPrintInfo (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
-@c None KINInfoHandler (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:None}) shlib
+# @ctypedef KINMem Ptr{:Void}
+@c Void KINProcessError (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
+@c Void KINErrHandler (:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:Void}) shlib
+@c Void KINPrintInfo (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
+@c Void KINInfoHandler (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:Void}) shlib
 
 # header: /usr/local/include/kinsol/kinsol_spbcgs.h
 @c Int32 KINSpbcg (:KINSOL_ptr,:Int32) shlib
