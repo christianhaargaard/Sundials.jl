@@ -107,19 +107,15 @@ type NVector # memory handle for NVectors
 end
 Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
 
+#<<<<<<< HEAD
 Base.length(nv::NVector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, nv.ptr[1])))
 Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
 # Added from #29 =======
-Base.size(nv::NVector, d...) = size(nv.v, d...)
-Base.getindex(nv::NVector, i::Real) = getindex(nv.v, i)
-Base.getindex(nv::NVector, i::AbstractArray) = getindex(nv.v, i)
+Base.size(nv::NVector, d) = size(nv.v, d)
 Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
-
-Base.setindex!(nv::NVector, X, i::Real ) = setindex!(nv.v, X, i)
-Base.setindex!(nv::NVector, X, i::AbstractArray ) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
-
-# >>>>>>> 352059c... Fix getindex and setindex.
+Base.stride(nv::NVector, dim) = stride(nv.v, dim)
+# >>>>>>> 088f909... Added getindex, setindex\!, stride for NVector.
 
 ##################################################################
 #
@@ -334,8 +330,8 @@ end
 @c Int32 CVodeSetUserData (:CVODE_ptr,Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
 function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
+    y = asarray(y)
+    yp = asarray(yp)
     userfun(t, y, yp)
     return Int32(0)
 end
@@ -370,9 +366,9 @@ end
 @c Int32 IDASetUserData (:IDA_ptr,Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
-    r = Sundials.asarray(r)
+    y = asarray(y)
+    yp = asarray(yp)
+    r = asarray(r)
     userfun(t, y, yp, r)
     return Int32(0)   # indicates normal return
 end
