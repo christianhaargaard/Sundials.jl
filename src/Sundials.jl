@@ -72,61 +72,68 @@ include("constants.jl")
 # Types to facilitate release of memory allocated by the library
 #
 ##################################################################
-type KINSOL   # memory handle for KINSOL
+type KinsolHandle   # memory handle for KINSOL
     kinsol::Vector{KINSOL_ptr} # vector for passing to functions expecting Ptr{KINSOL_ptr}
-    function KINSOL()
+    function KinsolHandle()
         k = new([KINCreate()])
         finalizer(k, KINFree)
         return k
     end
 end
-Base.convert(::Type{KINSOL_ptr}, k::KINSOL) = k.kinsol[1]
-Base.convert(T::Type{Ptr{KINSOL_ptr}}, k::KINSOL) = convert(T, k.kinsol)
+Base.convert(::Type{KINSOL_ptr}, k::KinsolHandle) = k.kinsol[1]
+Base.convert(T::Type{Ptr{KINSOL_ptr}}, k::KinsolHandle) = convert(T, k.kinsol)
 
-type CVODE    # memory handle for CVode
+type CVodeHandle    # memory handle for CVode
     cvode::Vector{CVODE_ptr} # vector for passing to functions expecting Ptr{CVODE_ptr}
-    function CVODE(lmm::Int, iter::Int)
-        k = new([CVodeCreate(lmm, iter)])
+    function CVodeHandle(lmm::Int, iter::Int)
+        k = new([CVodeCreate(Int32(lmm), Int32(iter))])
         finalizer(k, CVodeFree)
         return k
     end
 end
-Base.convert(::Type{CVODE_ptr}, k::CVODE) = k.cvode[1]
-Base.convert(T::Type{Ptr{CVODE_ptr}}, k::CVODE) = convert(T, k.cvode)
 
-type IDA # memory handle for IDA
+Base.convert(::Type{CVODE_ptr}, k::CVodeHandle) = k.cvode[1]
+Base.convert(T::Type{Ptr{CVODE_ptr}}, k::CVodeHandle) = convert(T, k.cvode)
+
+type IdaHandle # memory handle for IDA
     ida::Vector{IDA_ptr} # vector for passing to functions expecting Ptr{IDA_ptr}
-    function IDA()
+    function IdaHandle()
         k = new([IDACreate()])
         finalizer(k, IDAFree)
         return k
     end
 end
-Base.convert(::Type{IDA_ptr}, k::IDA) = k.ida[1]
-Base.convert(T::Type{Ptr{IDA_ptr}}, k::IDA) = convert(T, k.ida)
 
-type NVector <: DenseVector{RealType} # memory handle for NVectors
+Base.convert(::Type{IDA_ptr}, k::IdaHandle) = k.ida[1]
+Base.convert(T::Type{Ptr{IDA_ptr}}, k::IdaHandle) = convert(T, k.ida)
+
+type NVector # memory handle for NVectors
     ptr::Vector{N_Vector} # vector for passing to functions expecting Ptr{N_Vector}
-    v::Vector{RealType}
 
-    function NVector(x::Vector{RealType})
-        k = new([N_VMake_Serial(length(x), x)], x)
+    function NVector(x::Vector{realtype})
+        k = new([N_VMake_Serial(length(x), x)])
         finalizer(k, N_VDestroy_Serial)
         return k
     end
 end
-NVector{T<:Real}(x::Vector{T}) = NVector(copy!(similar(x, RealType), x))
-
+# <<<<<<< HEAD
+# NVector{T<:Real}(x::Vector{T}) = NVector(copy!(similar(x, RealType), x))
+# 
+# Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
+# Base.convert(::Type{Vector{RealType}}, nv::NVector)= nv.v
+# 
+# Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
+# Base.length(nv::NVector) = length(nv.v)
+# Base.size(nv::NVector) = size(nv.v)
+# Base.size(nv::NVector, d) = size(nv.v, d)
+# Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
+# Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
+# Base.stride(nv::NVector, dim) = stride(nv.v, dim)
+# =======
 Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
-Base.convert(::Type{Vector{RealType}}, nv::NVector)= nv.v
 
+Base.length(nv::NVector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, nv.ptr[1])))
 Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
-Base.length(nv::NVector) = length(nv.v)
-Base.size(nv::NVector) = size(nv.v)
-Base.size(nv::NVector, d) = size(nv.v, d)
-Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
-Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
-Base.stride(nv::NVector, dim) = stride(nv.v, dim)
 
 ##################################################################
 #
@@ -136,11 +143,18 @@ Base.stride(nv::NVector, dim) = stride(nv.v, dim)
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(x),))
-asarray(x::Vector{RealType}) = x
-asarray(x::Ptr{RealType}, dims::Tuple) = pointer_to_array(x, dims)
-asarray(x::N_Vector, dims::Tuple) = reinterpret(RealType, asarray(x), dims)
+# <<<<<<< HEAD
+# asarray(x::Vector{RealType}) = x
+# asarray(x::Ptr{RealType}, dims::Tuple) = pointer_to_array(x, dims)
+# asarray(x::N_Vector, dims::Tuple) = reinterpret(RealType, asarray(x), dims)
+# 
+# nvector(x::Vector{RealType}) = NVector(x)
+# =======
+asarray(x::Vector{realtype}) = x
+asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
+asarray(x::N_Vector, dims::Tuple) = reinterpret(realtype, asarray(x), dims)
 
-nvector(x::Vector{RealType}) = NVector(x)
+nvector(x::Vector{realtype}) = NVector(x)
 nvector(x::N_Vector) = x
 
 
@@ -313,7 +327,7 @@ function kinsol(f::Function, y0::Vector{Float64})
     # y0, Vector of initial values
     # return: the solution vector
     neq = length(y0)
-    kmem = KINSOL()
+    kmem = KinsolHandle()
 
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
@@ -357,10 +371,8 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
-    mem = CVODE(CV_BDF, CV_NEWTON)
+    mem = CVodeHandle(CV_BDF, CV_NEWTON)
     flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0))
-    #flag = CVodeInit(mem, cfunction(cvodefun, Int32, (RealType, N_Vector, N_Vector, Function)), t[1], NVector(y0))
-    #>>>>>>> 79d9f82... Make NVector <: DenseVector.
     flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
@@ -396,12 +408,8 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
     # return: (y,yp) two solution matrices representing the states and state derivatives
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
-    mem = IDA()
+    mem = IdaHandle()
     flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0), nvector(yp0))
-    # flag = IDAInit(mem, cfunction(idasolfun, Int32, (RealType, N_Vector, N_Vector, N_Vector, Function)), t[1], NVector(y0), NVector(yp0))
-    # >>>>>>> 79d9f82... Make NVector <: DenseVector.
-    #flag = IDAInit(mem, cfunction(idasolfun, Int32, (RealType, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
-    #>>>>>>> a632106... Renamed types to KINSOL, CVODE, IDA.
     flag = IDASetUserData(mem, f)
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)

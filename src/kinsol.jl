@@ -425,7 +425,6 @@ end
 function KINSptfqmr(kinmem::KINSOL_ptr,maxl::Int)
     ccall((:KINSptfqmr,libsundials_kinsol),Cint,(KINSOL_ptr,Cint),kinmem,maxl)
 end
-=======
 # header: /usr/local/include/kinsol/kinsol_band.h
 @ctypedef KINDlsDenseJacFn Ptr{:Void}
 @ctypedef KINDlsBandJacFn Ptr{:Void}
@@ -467,16 +466,16 @@ end
 @c Int32 KINSetMaxSetupCalls (:KINSOL_ptr,:Clong) shlib
 @c Int32 KINSetMaxSubSetupCalls (:KINSOL_ptr,:Clong) shlib
 @c Int32 KINSetEtaForm (:KINSOL_ptr,:Int32) shlib
-@c Int32 KINSetEtaConstValue (:KINSOL_ptr,:RealType) shlib
-@c Int32 KINSetEtaParams (:KINSOL_ptr,:RealType,:RealType) shlib
-@c Int32 KINSetResMonParams (:KINSOL_ptr,:RealType,:RealType) shlib
-@c Int32 KINSetResMonConstValue (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetEtaConstValue (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetEtaParams (:KINSOL_ptr,:realtype,:realtype) shlib
+@c Int32 KINSetResMonParams (:KINSOL_ptr,:realtype,:realtype) shlib
+@c Int32 KINSetResMonConstValue (:KINSOL_ptr,:realtype) shlib
 @c Int32 KINSetNoMinEps (:KINSOL_ptr,:Int32) shlib
-@c Int32 KINSetMaxNewtonStep (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetMaxNewtonStep (:KINSOL_ptr,:realtype) shlib
 @c Int32 KINSetMaxBetaFails (:KINSOL_ptr,:Clong) shlib
-@c Int32 KINSetRelErrFunc (:KINSOL_ptr,:RealType) shlib
-@c Int32 KINSetFuncNormTol (:KINSOL_ptr,:RealType) shlib
-@c Int32 KINSetScaledStepTol (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetRelErrFunc (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetFuncNormTol (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetScaledStepTol (:KINSOL_ptr,:realtype) shlib
 @c Int32 KINSetConstraints (:KINSOL_ptr,:N_Vector) shlib
 @c Int32 KINSetSysFunc (:KINSOL_ptr,:KINSysFn) shlib
 @c Int32 KINInit (:KINSOL_ptr,:KINSysFn,:N_Vector) shlib
@@ -486,8 +485,8 @@ end
 @c Int32 KINGetNumFuncEvals (:KINSOL_ptr,Ptr{:Clong}) shlib
 @c Int32 KINGetNumBetaCondFails (:KINSOL_ptr,Ptr{:Clong}) shlib
 @c Int32 KINGetNumBacktrackOps (:KINSOL_ptr,Ptr{:Clong}) shlib
-@c Int32 KINGetFuncNorm (:KINSOL_ptr,Ptr{:RealType}) shlib
-@c Int32 KINGetStepLength (:KINSOL_ptr,Ptr{:RealType}) shlib
+@c Int32 KINGetFuncNorm (:KINSOL_ptr,Ptr{:realtype}) shlib
+@c Int32 KINGetStepLength (:KINSOL_ptr,Ptr{:realtype}) shlib
 @c Ptr{:Uint8} KINGetReturnFlagName (:Clong,) shlib
 @c None KINFree (Ptr{:KINSOL_ptr},) shlib
 
@@ -523,4 +522,3 @@ end
 
 # header: /usr/local/include/kinsol/kinsol_sptfqmr.h
 @c Int32 KINSptfqmr (:KINSOL_ptr,:Int32) shlib
->>>>>>> a632106... Renamed types to KINSOL, CVODE, IDA.
