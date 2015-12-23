@@ -109,6 +109,17 @@ Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
 
 Base.length(nv::NVector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, nv.ptr[1])))
 Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
+# Added from #29 =======
+Base.size(nv::NVector, d...) = size(nv.v, d...)
+Base.getindex(nv::NVector, i::Real) = getindex(nv.v, i)
+Base.getindex(nv::NVector, i::AbstractArray) = getindex(nv.v, i)
+Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
+
+Base.setindex!(nv::NVector, X, i::Real ) = setindex!(nv.v, X, i)
+Base.setindex!(nv::NVector, X, i::AbstractArray ) = setindex!(nv.v, X, i)
+Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
+
+# >>>>>>> 352059c... Fix getindex and setindex.
 
 ##################################################################
 #
@@ -272,6 +283,8 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
     ## IDAQuadSVtolerances(mem, reltol, abstol::Vector{realtype}) =
     ## IDAQuadSVtolerances(mem, reltol, nvector(abstol))
 end
+
+end # isdefined(:libsundials_cvodes)
 
 ##################################################################
 #
