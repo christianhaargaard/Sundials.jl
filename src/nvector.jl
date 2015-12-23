@@ -191,7 +191,6 @@ function N_VDiv_Serial(x::N_Vector,y::N_Vector,z::N_Vector)
     ccall((:N_VDiv_Serial,libsundials_nvecserial),Void,(N_Vector,N_Vector,N_Vector),x,y,z)
 end
 
-<<<<<<< HEAD
 function N_VScale_Serial(c::realtype,x::N_Vector,z::N_Vector)
     ccall((:N_VScale_Serial,libsundials_nvecserial),Void,(realtype,N_Vector,N_Vector),c,x,z)
 end
