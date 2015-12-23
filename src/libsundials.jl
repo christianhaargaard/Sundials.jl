@@ -1,7 +1,6 @@
 # Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/sundials/shlib.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-
 function bandGBTRF(a::Ptr{Ptr{realtype}},n::Int,mu::Int,ml::Int,smu::Int,p::Ptr{Clong})
     ccall((:bandGBTRF,shlib),Clong,(Ptr{Ptr{realtype}},Clong,Clong,Clong,Clong,Ptr{Clong}),a,n,mu,ml,smu,p)
 end
