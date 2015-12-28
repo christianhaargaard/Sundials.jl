@@ -56,7 +56,7 @@ if isdefined(:libsundials_cvodes)
 else
     include("cvode.jl")
 end
-include("cvode.jl")
+# include("cvode.jl")
 shlib = libsundials_ida
 if isdefined(:libsundials_cvodes)
     include("idas.jl")
@@ -89,7 +89,8 @@ type CVodeHandle    # memory handle for CVode
     cvode::Vector{CVODE_ptr} # vector for passing to functions expecting Ptr{CVODE_ptr}
     function CVodeHandle(lmm::Int, iter::Int)
         k = new([CVodeCreate(Int(lmm), Int(iter))])
-        finalizer(k, (x) -> CVodeFree(convert(CVODE_ptr,x)))
+        finalizer(k, (x) -> CVodeFree(x.cvode))
+#         finalizer(k, CVodeFree)
         return k
     end
 end
@@ -390,7 +391,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
         flag = CVode(mem, t[k], y, tout, CV_NORMAL)
         yres[k,:] = y
     end
-    CVodeFree([mem])
+#     CVodeFree([mem])
     return yres
 end
 

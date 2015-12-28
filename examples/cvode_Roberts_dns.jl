@@ -20,7 +20,7 @@ function g(t, y, gout, user_data)
     gout = Sundials.asarray(gout, (2,))
     gout[1] = y[1] - 0.0001
     gout[2] = y[3] - 0.01
-    return Int32(0)
+    return Int(0)
 end
 
 ## Jacobian routine. Compute J(t,y) = df/dy.  
@@ -73,10 +73,10 @@ function Jac(N, t, y, fy, Jptr, user_data,
     J[2,2] = -1.0e4*y[3] - 6.0e7*y[2]
     J[2,3] = -1.0e4*y[2]
     J[3,2] = 6.0e7*y[2]
-    return Int32(0)
+    return Int(0)
 end
 
-neq = Int32(3)
+neq = Int(3)
 
 t0 = 0.0
 t1 = 0.4
@@ -86,11 +86,12 @@ y = [1.0,0.0,0.0]
 reltol = 1e-4
 abstol = [1e-8, 1e-14, 1e-6]
 
-cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
-flag = Sundials.CVodeInit(cvode_mem, f, t0, y)
-flag = Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
-flag = Sundials.CVodeRootInit(cvode_mem, Int32(2), g)
-flag = Sundials.CVDense(cvode_mem, neq)
+# cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+cvode_mem = Sundials.CVodeHandle(Sundials.CV_BDF, Sundials.CV_NEWTON)
+flag = Sundials.CVodeInit(convert(Sundials.CVODE_ptr,cvode_mem), f, t0, y)
+flag = Sundials.CVodeSVtolerances(convert(Sundials.CVODE_ptr,cvode_mem), reltol, abstol)
+flag = Sundials.CVodeRootInit(convert(Sundials.CVODE_ptr,cvode_mem), Int(2), g)
+flag = Sundials.CVDense(convert(Sundials.CVODE_ptr,cvode_mem), neq)
 ## flag = Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)  # works, but clunky, see above
 
 iout = 0
@@ -100,11 +101,11 @@ rootsfound = round(Int32,[0, 0])
 t = [t0]
 
 while true
-    flag = Sundials.CVode(cvode_mem, tout, y, t, Sundials.CV_NORMAL)
+    flag = Sundials.CVode(convert(Sundials.CVODE_ptr,cvode_mem), tout, y, t, Sundials.CV_NORMAL)
     println("T = ", tout, ", Y = ", y)
     if flag == Sundials.CV_ROOT_RETURN
-        flagr = Sundials.CVodeGetRootInfo(cvode_mem, rootsfound)
-        println("roots = ", rootsfound)
+#         flagr = Sundials.CVodeGetRootInfo(cvode_mem, rootsfound)
+#         println("roots = ", rootsfound)
     end
     if flag == Sundials.CV_SUCCESS
       iout += 1
